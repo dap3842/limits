@@ -40,6 +40,7 @@
             line-height: 1.6;
             margin: 0;
             padding: 0;
+            overflow-x: hidden; /* Защита от горизонтального скролла всей страницы */
         }
 
         header {
@@ -116,14 +117,15 @@
             background-color: #fef0cd;
             color: #d35400;
             border: 1px dashed #d35400;
-            padding: 2px 8px;
+            padding: 4px 10px;
             border-radius: 12px;
             cursor: pointer;
             font-size: 0.85em;
             font-weight: bold;
             transition: all 0.2s;
             display: inline-block;
-            margin: 0 5px;
+            margin: 5px 0;
+            user-select: none;
         }
 
         .hint-btn:hover {
@@ -140,6 +142,7 @@
             font-size: 0.9em;
             border-radius: 4px;
             color: #555;
+            line-height: 1.5;
         }
 
         @keyframes fadeIn {
@@ -151,15 +154,76 @@
             color: var(--primary-color);
             font-size: 1.4em;
             margin-bottom: 10px;
-        }
-
-        .highlight {
-            color: var(--accent-color);
             font-weight: bold;
         }
-        
+
+        /* МАГИЯ ДЛЯ МОБИЛОК: Контейнер для формул */
         .math-block {
             overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+            padding: 10px 0;
+            margin: 5px 0;
+            max-width: 100%;
+        }
+
+        /* Заставляем сам MathJax скроллиться, если он не обернут */
+        mjx-container[display="true"] {
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Кастомизация ползунка скролла (чтобы было видно, что можно листать) */
+        .math-block::-webkit-scrollbar, mjx-container[display="true"]::-webkit-scrollbar {
+            height: 6px;
+        }
+        .math-block::-webkit-scrollbar-track, mjx-container[display="true"]::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        .math-block::-webkit-scrollbar-thumb, mjx-container[display="true"]::-webkit-scrollbar-thumb {
+            background: #ccc; 
+            border-radius: 4px;
+        }
+        .math-block::-webkit-scrollbar-thumb:hover, mjx-container[display="true"]::-webkit-scrollbar-thumb:hover {
+            background: #aaa; 
+        }
+
+        /* Адаптивность под телефоны */
+        @media (max-width: 600px) {
+            header {
+                padding: 30px 15px;
+            }
+            h1 {
+                font-size: 1.5em;
+            }
+            .container {
+                margin: 20px auto;
+                padding: 0 10px;
+            }
+            .card {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            .definition-box {
+                padding: 15px;
+            }
+            summary {
+                padding: 12px 15px;
+                font-size: 0.95em;
+            }
+            .proof-content {
+                padding: 15px 10px;
+            }
+            .theorem-title {
+                font-size: 1.2em;
+            }
+            .hint-btn {
+                padding: 6px 12px; /* Удобнее нажимать пальцем */
+                font-size: 0.8em;
+            }
         }
     </style>
 </head>
@@ -197,13 +261,14 @@
             <div class="proof-content">
                 <p>Доказывать будем <b>от противного</b>.</p>
                 <p>1. Предположим, что последовательность $\{a_n\}$ имеет сразу два разных предела: $A$ и $B$ ($A \neq B$).</p>
-                <p>2. Раз они разные, расстояние между ними больше нуля. Возьмем в качестве $\varepsilon$ половину расстояния между ними: 
+                <p>2. Раз они разные, расстояние между ними больше нуля. Возьмем в качестве $\varepsilon$ половину расстояния между ними:</p>
+                <div class="math-block">
                     $$\varepsilon = \frac{|A - B|}{2} > 0$$
-                    <span class="hint-btn" onclick="toggleHint('hint-uniq')">Зачем брать именно такое $\varepsilon$?</span>
-                    <div id="hint-uniq" class="hint-text">
-                        Мы хотим построить два непересекающихся "коридора" вокруг $A$ и $B$. Если мы возьмем радиус коридора равным половине расстояния между центрами, коридоры не пересекутся. Член последовательности не сможет находиться в двух непересекающихся коридорах одновременно! Это математический трюк.
-                    </div>
-                </p>
+                </div>
+                <span class="hint-btn" onclick="toggleHint('hint-uniq')">Зачем брать именно такое $\varepsilon$?</span>
+                <div id="hint-uniq" class="hint-text">
+                    Мы хотим построить два непересекающихся "коридора" вокруг $A$ и $B$. Если мы возьмем радиус коридора равным половине расстояния между центрами, коридоры не пересекутся. Член последовательности не сможет находиться в двух непересекающихся коридорах одновременно! Это математический трюк.
+                </div>
                 <p>3. Так как $A$ — предел, то найдется номер $N_1$, начиная с которого $|a_n - A| < \varepsilon$.</p>
                 <p>4. Так как $B$ — тоже предел, найдется номер $N_2$, начиная с которого $|a_n - B| < \varepsilon$.</p>
                 <p>5. Возьмем номер $N = \max(N_1, N_2)$. Для всех $n > N$ будут выполняться <b>оба</b> неравенства сразу.</p>
@@ -238,12 +303,14 @@
             <div class="proof-content">
                 <p>Пусть $\lim_{n \to \infty} a_n = A$.</p>
                 <p>1. В определении предела сказано: для <b>любого</b> $\varepsilon$. Раз для любого, значит, мы можем взять конкретное. Пусть $\varepsilon = 1$.</p>
-                <p>2. Тогда по определению найдется номер $N$, такой, что для всех $n > N$ выполняется:
+                <p>2. Тогда по определению найдется номер $N$, такой, что для всех $n > N$ выполняется:</p>
+                <div class="math-block">
                     $$|a_n - A| < 1$$
-                </p>
-                <p>3. Раскроем модуль (используя свойство $|x| - |y| \le |x - y|$):
+                </div>
+                <p>3. Раскроем модуль (используя свойство $|x| - |y| \le |x - y|$):</p>
+                <div class="math-block">
                     $$|a_n| - |A| \le |a_n - A| < 1 \implies |a_n| < |A| + 1$$
-                </p>
+                </div>
                 <p>Это означает, что <b>все</b> члены последовательности, начиная с номера $N+1$, по модулю меньше числа $M_1 = |A| + 1$.</p>
                 
                 <span class="hint-btn" onclick="toggleHint('hint-bound')">А как же первые $N$ элементов?</span>
@@ -274,18 +341,20 @@
                 
                 <p>1. Фиксируем любое $\varepsilon > 0$.</p>
                 
-                <p>2. Так как $a_n \to A$, то (внимание на трюк!) для числа $\frac{\varepsilon}{2}$ найдется номер $N_1$, такой, что для $n > N_1$ выполняется:
-                $$|a_n - A| < \frac{\varepsilon}{2}$$
-                </p>
+                <p>2. Так как $a_n \to A$, то (внимание на трюк!) для числа $\frac{\varepsilon}{2}$ найдется номер $N_1$, такой, что для $n > N_1$ выполняется:</p>
+                <div class="math-block">
+                    $$|a_n - A| < \frac{\varepsilon}{2}$$
+                </div>
                 
                 <span class="hint-btn" onclick="toggleHint('hint-eps2')">Почему мы взяли $\varepsilon / 2$? Имеем ли право?</span>
                 <div id="hint-eps2" class="hint-text">
                     В определении предела сказано "для <b>ЛЮБОГО</b> положительного числа". Раз $\varepsilon > 0$, то и $\frac{\varepsilon}{2} > 0$. Значит, определение работает и для него! Мы берем половинки, чтобы в конце, когда мы их сложим, получилась ровно одна целая $\varepsilon$. Это классический математический подгон для красоты финала.
                 </div>
 
-                <p>3. Так как $b_n \to B$, для того же $\frac{\varepsilon}{2}$ найдется свой номер $N_2$, такой, что для $n > N_2$:
-                $$|b_n - B| < \frac{\varepsilon}{2}$$
-                </p>
+                <p>3. Так как $b_n \to B$, для того же $\frac{\varepsilon}{2}$ найдется свой номер $N_2$, такой, что для $n > N_2$:</p>
+                <div class="math-block">
+                    $$|b_n - B| < \frac{\varepsilon}{2}$$
+                </div>
 
                 <p>4. Чтобы работали оба условия сразу, берем $N = \max(N_1, N_2)$. Для всех $n > N$ оцениваем нашу главную разность (снова группируем и применяем неравенство треугольника):</p>
                 <div class="math-block">
@@ -393,26 +462,29 @@
 
     <!-- СВОЙСТВО 6 -->
     <div class="card">
-        <div class="theorem-title">Свойство 6: Теорема о двух милиционерах (Теорема о зажатой последовательности)</div>
+        <div class="theorem-title">Свойство 6: Теорема о двух милиционерах (о зажатой последовательности)</div>
         <p>Если последовательность $\{b_n\}$ зажата между $\{a_n\}$ и $\{c_n\}$ (т.е. $a_n \le b_n \le c_n$ для всех $n$), и при этом крайние сходятся к <b>одному и тому же числу</b> $A$ ($\lim a_n = A$ и $\lim c_n = A$), то и зажатая последовательность сходится к $A$: $\lim b_n = A$.</p>
         
         <details>
             <summary>Показать доказательство</summary>
             <div class="proof-content">
                 <p>Это доказательство очень красивое и наглядное.</p>
-                <p>1. Фиксируем любое $\varepsilon > 0$. Нам нужно доказать, что $b_n$ рано или поздно окажется в $\varepsilon$-коридоре вокруг $A$, то есть:
-                $$A - \varepsilon < b_n < A + \varepsilon$$
-                </p>
+                <p>1. Фиксируем любое $\varepsilon > 0$. Нам нужно доказать, что $b_n$ рано или поздно окажется в $\varepsilon$-коридоре вокруг $A$, то есть:</p>
+                <div class="math-block">
+                    $$A - \varepsilon < b_n < A + \varepsilon$$
+                </div>
 
-                <p>2. Так как $a_n \to A$, найдется $N_1$, начиная с которого $|a_n - A| < \varepsilon$. Раскрывая модуль, получаем:
-                $$A - \varepsilon < a_n < A + \varepsilon$$
-                Нам отсюда понадобится только левая часть: $A - \varepsilon < a_n$.
-                </p>
+                <p>2. Так как $a_n \to A$, найдется $N_1$, начиная с которого $|a_n - A| < \varepsilon$. Раскрывая модуль, получаем:</p>
+                <div class="math-block">
+                    $$A - \varepsilon < a_n < A + \varepsilon$$
+                </div>
+                <p>Нам отсюда понадобится только левая часть: $A - \varepsilon < a_n$.</p>
 
-                <p>3. Так как $c_n \to A$, найдется $N_2$, начиная с которого $|c_n - A| < \varepsilon$. Раскрывая модуль:
-                $$A - \varepsilon < c_n < A + \varepsilon$$
-                Нам отсюда понадобится правая часть: $c_n < A + \varepsilon$.
-                </p>
+                <p>3. Так как $c_n \to A$, найдется $N_2$, начиная с которого $|c_n - A| < \varepsilon$. Раскрывая модуль:</p>
+                <div class="math-block">
+                    $$A - \varepsilon < c_n < A + \varepsilon$$
+                </div>
+                <p>Нам отсюда понадобится правая часть: $c_n < A + \varepsilon$.</p>
 
                 <p>4. Выбираем $N = \max(N_1, N_2)$. Для всех $n > N$ будут выполняться оба условия одновременно. Соединяем их с нашим главным условием $a_n \le b_n \le c_n$ в одну длинную цепочку:</p>
 
@@ -421,7 +493,7 @@
                 </div>
                 
                 <span class="hint-btn" onclick="toggleHint('hint-police')">Почему милиционеры?</span>
-                <div id="hint-login" class="hint-text">
+                <div id="hint-police" class="hint-text">
                     Представь, что $a_n$ и $c_n$ — это два милиционера, которые ведут задержанного $b_n$ в отделение милиции (в точку $A$). Если оба милиционера идут в отделение, то задержанному деваться некуда — он придет туда же!
                 </div>
 
