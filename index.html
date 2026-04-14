@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пределы последовательностей: Свойства и Доказательства</title>
+    
+    <!-- Подключение шрифтов -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Настройка MathJax для рендеринга формул -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Montserrat', sans-serif;
+            margin-top: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .definition-box {
+            background-color: #e8f4f8;
+            border-left: 5px solid var(--secondary-color);
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 30px;
+        }
+
+        /* Стиль для интерактивных блоков с доказательствами */
+        details {
+            margin-top: 15px;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        summary {
+            padding: 15px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #f1f1f1;
+            transition: background 0.3s;
+            user-select: none;
+            outline: none;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        summary:hover {
+            background: #e2e2e2;
+        }
+
+        details[open] summary {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .proof-content {
+            padding: 20px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        /* Интерактивные подсказки (почему так?) */
+        .hint-btn {
+            background-color: #fef0cd;
+            color: #d35400;
+            border: 1px dashed #d35400;
+            padding: 2px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        .hint-btn:hover {
+            background-color: #d35400;
+            color: white;
+        }
+
+        .hint-text {
+            display: none;
+            background-color: #fff9e6;
+            border-left: 3px solid #f39c12;
+            padding: 10px 15px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            border-radius: 4px;
+            color: #555;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .theorem-title {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+
+        .highlight {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        .math-block {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Пределы последовательностей</h1>
+    <p>Свойства и строгие доказательства (Уровень 10 класса)</p>
+</header>
+
+<div class="container">
+
+    <!-- ВВЕДЕНИЕ И ОПРЕДЕЛЕНИЕ -->
+    <div class="definition-box">
+        <h3>Главный инструмент: Определение предела (через $\varepsilon$)</h3>
+        <p>Число $A$ называется <b>пределом</b> последовательности $\{a_n\}$, если для <i>любого</i> (даже самого крошечного) числа $\varepsilon > 0$ найдется такой номер $N$, что для всех элементов с номерами $n > N$ будет выполняться неравенство:</p>
+        <div class="math-block">
+            $$|a_n - A| < \varepsilon$$
+        </div>
+        <p><b>Обозначается:</b> $\lim_{n \to \infty} a_n = A$.</p>
+        
+        <span class="hint-btn" onclick="toggleHint('hint-def')">Что это значит простыми словами? [клик]</span>
+        <div id="hint-def" class="hint-text">
+            Представь, что $\varepsilon$ — это ширина "коридора" вокруг числа $A$. Определение говорит: какой бы узкий коридор ты ни задал, последовательность рано или поздно в него зайдет (начиная с какого-то номера $N$) и <b>больше никогда из него не выйдет</b>. Модуль $|a_n - A|$ — это просто расстояние от члена последовательности до предела.
+        </div>
+    </div>
+
+    <!-- СВОЙСТВО 1 -->
+    <div class="card">
+        <div class="theorem-title">Свойство 1: Единственность предела</div>
+        <p>Последовательность может иметь <b>только один</b> предел. Нельзя сходиться сразу к двум разным числам.</p>
+        
+        <details>
+            <summary>Показать красивое доказательство</summary>
+            <div class="proof-content">
+                <p>Доказывать будем <b>от противного</b>.</p>
+                <p>1. Предположим, что последовательность $\{a_n\}$ имеет сразу два разных предела: $A$ и $B$ ($A \neq B$).</p>
+                <p>2. Раз они разные, расстояние между ними больше нуля. Возьмем в качестве $\varepsilon$ половину расстояния между ними: 
+                    $$\varepsilon = \frac{|A - B|}{2} > 0$$
+                    <span class="hint-btn" onclick="toggleHint('hint-uniq')">Зачем брать именно такое $\varepsilon$?</span>
+                    <div id="hint-uniq" class="hint-text">
+                        Мы хотим построить два непересекающихся "коридора" вокруг $A$ и $B$. Если мы возьмем радиус коридора равным половине расстояния между центрами, коридоры не пересекутся. Член последовательности не сможет находиться в двух непересекающихся коридорах одновременно! Это математический трюк.
+                    </div>
+                </p>
+                <p>3. Так как $A$ — предел, то найдется номер $N_1$, начиная с которого $|a_n - A| < \varepsilon$.</p>
+                <p>4. Так как $B$ — тоже предел, найдется номер $N_2$, начиная с которого $|a_n - B| < \varepsilon$.</p>
+                <p>5. Возьмем номер $N = \max(N_1, N_2)$. Для всех $n > N$ будут выполняться <b>оба</b> неравенства сразу.</p>
+                <p>6. Теперь распишем расстояние между нашими пределами $A$ и $B$, прибавив и вычтя $a_n$ внутри модуля (значение от этого не изменится):</p>
+                <div class="math-block">
+                    $$|A - B| = |A - a_n + a_n - B| \le |A - a_n| + |a_n - B|$$
+                </div>
+                <span class="hint-btn" onclick="toggleHint('hint-triangle')">Что за знак $\le$? Откуда он?</span>
+                <div id="hint-triangle" class="hint-text">
+                    Это знаменитое <b>неравенство треугольника</b>: модуль суммы не превышает суммы модулей $|x + y| \le |x| + |y|$. Мы приняли $x = A - a_n$, а $y = a_n - B$.
+                </div>
+                <p>7. Мы знаем, что $|A - a_n| = |a_n - A| < \varepsilon$ и $|a_n - B| < \varepsilon$. Подставляем:</p>
+                <div class="math-block">
+                    $$|A - B| < \varepsilon + \varepsilon = 2\varepsilon$$
+                </div>
+                <p>8. Но мы сами выбрали $\varepsilon = \frac{|A - B|}{2}$. Значит, $2\varepsilon = |A - B|$. Получается нелепость:</p>
+                <div class="math-block">
+                    $$|A - B| < |A - B|$$
+                </div>
+                <p>Противоречие! Значит, наше изначальное предположение было неверным. Предел может быть только один. <i>Ч.т.д.</i> ∎</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- СВОЙСТВО 2 -->
+    <div class="card">
+        <div class="theorem-title">Свойство 2: Ограниченность сходящейся последовательности</div>
+        <p>Если последовательность сходится (имеет предел), то она <b>ограничена</b> (ее значения не улетают в бесконечность, а зажаты между какими-то двумя числами).</p>
+        
+        <details>
+            <summary>Показать доказательство</summary>
+            <div class="proof-content">
+                <p>Пусть $\lim_{n \to \infty} a_n = A$.</p>
+                <p>1. В определении предела сказано: для <b>любого</b> $\varepsilon$. Раз для любого, значит, мы можем взять конкретное. Пусть $\varepsilon = 1$.</p>
+                <p>2. Тогда по определению найдется номер $N$, такой, что для всех $n > N$ выполняется:
+                    $$|a_n - A| < 1$$
+                </p>
+                <p>3. Раскроем модуль (используя свойство $|x| - |y| \le |x - y|$):
+                    $$|a_n| - |A| \le |a_n - A| < 1 \implies |a_n| < |A| + 1$$
+                </p>
+                <p>Это означает, что <b>все</b> члены последовательности, начиная с номера $N+1$, по модулю меньше числа $M_1 = |A| + 1$.</p>
+                
+                <span class="hint-btn" onclick="toggleHint('hint-bound')">А как же первые $N$ элементов?</span>
+                <div id="hint-bound" class="hint-text">
+                    Они могли быть какими угодно большими. Но их <b>конечное число</b> (ровно $N$ штук). Мы можем просто выбрать самое большое из них!
+                </div>
+
+                <p>4. Чтобы ограничить вообще <b>всю</b> последовательность с самого первого члена, просто выберем максимальное число из первых $N$ членов и нашего барьера $M_1$:</p>
+                <div class="math-block">
+                    $$M = \max(|a_1|, |a_2|, \dots, |a_N|, |A| + 1)$$
+                </div>
+                <p>Теперь для абсолютно <b>любого</b> $n$ справедливо $|a_n| \le M$. Последовательность ограничена! ∎</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- СВОЙСТВО 3 -->
+    <div class="card">
+        <div class="theorem-title">Свойство 3: Предел суммы (и разности)</div>
+        <p>Если $\lim a_n = A$ и $\lim b_n = B$, то предел их суммы равен сумме их пределов:<br> 
+        $\lim (a_n \pm b_n) = A \pm B$.</p>
+        
+        <details>
+            <summary>Показать доказательство</summary>
+            <div class="proof-content">
+                <p>Докажем для суммы (для разности доказывается абсолютно так же).</p>
+                <p>Нам нужно доказать, что разность между суммой $(a_n + b_n)$ и числом $(A + B)$ по модулю станет меньше любого наперед заданного $\varepsilon$.</p>
+                
+                <p>1. Фиксируем любое $\varepsilon > 0$.</p>
+                
+                <p>2. Так как $a_n \to A$, то (внимание на трюк!) для числа $\frac{\varepsilon}{2}$ найдется номер $N_1$, такой, что для $n > N_1$ выполняется:
+                $$|a_n - A| < \frac{\varepsilon}{2}$$
+                </p>
+                
+                <span class="hint-btn" onclick="toggleHint('hint-eps2')">Почему мы взяли $\varepsilon / 2$? Имеем ли право?</span>
+                <div id="hint-eps2" class="hint-text">
+                    В определении предела сказано "для <b>ЛЮБОГО</b> положительного числа". Раз $\varepsilon > 0$, то и $\frac{\varepsilon}{2} > 0$. Значит, определение работает и для него! Мы берем половинки, чтобы в конце, когда мы их сложим, получилась ровно одна целая $\varepsilon$. Это классический математический подгон для красоты финала.
+                </div>
+
+                <p>3. Так как $b_n \to B$, для того же $\frac{\varepsilon}{2}$ найдется свой номер $N_2$, такой, что для $n > N_2$:
+                $$|b_n - B| < \frac{\varepsilon}{2}$$
+                </p>
+
+                <p>4. Чтобы работали оба условия сразу, берем $N = \max(N_1, N_2)$. Для всех $n > N$ оцениваем нашу главную разность (снова группируем и применяем неравенство треугольника):</p>
+                <div class="math-block">
+                    $$|(a_n + b_n) - (A + B)| = |(a_n - A) + (b_n - B)| \le |a_n - A| + |b_n - B|$$
+                </div>
+
+                <p>5. Подставляем наши половинки:</p>
+                <div class="math-block">
+                    $$|a_n - A| + |b_n - B| < \frac{\varepsilon}{2} + \frac{\varepsilon}{2} = \varepsilon$$
+                </div>
+                
+                <p>Итог: $|(a_n + b_n) - (A + B)| < \varepsilon$. По определению это и значит, что $A+B$ — предел суммы. ∎</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- СВОЙСТВО 4 -->
+    <div class="card">
+        <div class="theorem-title">Свойство 4: Предел произведения</div>
+        <p>Если $\lim a_n = A$ и $\lim b_n = B$, то $\lim (a_n \cdot b_n) = A \cdot B$.</p>
+        
+        <details>
+            <summary>Показать доказательство</summary>
+            <div class="proof-content">
+                <p>Здесь нам впервые понадобится Свойство 2 (ограниченность)!</p>
+                <p>Нам надо оценить $|a_n b_n - AB|$. Сделаем хитрый алгебраический трюк: вычтем и прибавим одно и то же выражение $a_n B$.</p>
+                
+                <div class="math-block">
+                    $$|a_n b_n - AB| = |a_n b_n \mathbf{- a_n B + a_n B} - AB|$$
+                </div>
+                <p>Группируем и выносим за скобки:</p>
+                <div class="math-block">
+                    $$= |a_n(b_n - B) + B(a_n - A)| \le |a_n| \cdot |b_n - B| + |B| \cdot |a_n - A|$$
+                </div>
+
+                <p>Теперь смотрим на получившиеся кусочки:</p>
+                <p>1. Последовательность $\{a_n\}$ сходится, значит по <b>Свойству 2</b> она ограничена. Существует такое число $M > 0$, что $|a_n| \le M$ для всех $n$.</p>
+                <p>2. $|B|$ — это просто число. Для надежности (вдруг $B=0$) обозначим $K = |B| + 1$, чтобы $K > 0$.</p>
+                
+                <p>Тогда наше неравенство продолжается:</p>
+                <div class="math-block">
+                    $$|a_n b_n - AB| \le M \cdot |b_n - B| + K \cdot |a_n - A|$$
+                </div>
+
+                <span class="hint-btn" onclick="toggleHint('hint-prod')">Как нам сделать это выражение меньше $\varepsilon$?</span>
+                <div id="hint-prod" class="hint-text">
+                    Мы хотим, чтобы вся сумма была меньше $\varepsilon$. Давайте заставим каждое из двух слагаемых быть меньше $\frac{\varepsilon}{2}$! Для первого нужно $|b_n - B| < \frac{\varepsilon}{2M}$. Для второго $|a_n - A| < \frac{\varepsilon}{2K}$.
+                </div>
+
+                <p>3. Фиксируем любое $\varepsilon > 0$.</p>
+                <p>4. Так как $a_n \to A$, найдется $N_1$, что при $n > N_1$ выполняется $|a_n - A| < \frac{\varepsilon}{2K}$.</p>
+                <p>5. Так как $b_n \to B$, найдется $N_2$, что при $n > N_2$ выполняется $|b_n - B| < \frac{\varepsilon}{2M}$.</p>
+                <p>6. Берем $N = \max(N_1, N_2)$. Тогда при $n > N$:</p>
+
+                <div class="math-block">
+                    $$|a_n b_n - AB| \le M \cdot \left(\frac{\varepsilon}{2M}\right) + K \cdot \left(\frac{\varepsilon}{2K}\right) = \frac{\varepsilon}{2} + \frac{\varepsilon}{2} = \varepsilon$$
+                </div>
+                <p>Доказано строго по определению! ∎</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- СВОЙСТВО 5 -->
+    <div class="card">
+        <div class="theorem-title">Свойство 5: Предел частного</div>
+        <p>Если $\lim a_n = A$ и $\lim b_n = B$ (причем $B \neq 0$ и $b_n \neq 0$), то $\lim \left(\frac{a_n}{b_n}\right) = \frac{A}{B}$.</p>
+        
+        <details>
+            <summary>Показать доказательство (самое сложное!)</summary>
+            <div class="proof-content">
+                <p>Чтобы не делать огромные вычисления, докажем вспомогательный факт: $\lim \left(\frac{1}{b_n}\right) = \frac{1}{B}$. Если мы это докажем, то по Свойству 4 (о произведении) предел частного получится сам собой: $a_n \cdot \frac{1}{b_n} \to A \cdot \frac{1}{B} = \frac{A}{B}$.</p>
+                
+                <p><b>Докажем, что $\frac{1}{b_n} \to \frac{1}{B}$</b></p>
+                <p>Оценим разность:</p>
+                <div class="math-block">
+                    $$\left| \frac{1}{b_n} - \frac{1}{B} \right| = \frac{|B - b_n|}{|b_n| \cdot |B|}$$
+                </div>
+                
+                <p>Здесь есть проблема: в знаменателе стоит $|b_n|$. А вдруг $b_n$ становится очень маленьким (близким к нулю)? Тогда дробь станет огромной! Нужно доказать, что $b_n$ не может подойти к нулю слишком близко.</p>
+
+                <span class="hint-btn" onclick="toggleHint('hint-quotient')">Как "отгородить" $b_n$ от нуля?</span>
+                <div id="hint-quotient" class="hint-text">
+                    Мы знаем, что $b_n \to B$, и $B \neq 0$. Значит, рано или поздно последовательность зайдет в коридор вокруг $B$ и останется там. Если мы возьмем радиус коридора равным половине расстояния от $0$ до $B$ (то есть $\frac{|B|}{2}$), то внутри коридора все числа будут отделены от нуля как минимум на эту самую $\frac{|B|}{2}$!
+                </div>
+
+                <p>1. Положим $\varepsilon_0 = \frac{|B|}{2} > 0$. По определению предела найдется номер $N_1$, такой что для $n > N_1$ выполняется $|b_n - B| < \frac{|B|}{2}$.</p>
+                <p>Из этого следует (по свойствам модуля), что $|b_n| > \frac{|B|}{2}$. Значит, $\frac{1}{|b_n|} < \frac{2}{|B|}$.</p>
+
+                <p>2. Теперь возвращаемся к нашей разности. Для $n > N_1$ знаменатель надежно ограничен:</p>
+                <div class="math-block">
+                    $$\frac{|B - b_n|}{|b_n| \cdot |B|} < \frac{|B - b_n|}{\frac{|B|}{2} \cdot |B|} = |B - b_n| \cdot \frac{2}{B^2}$$
+                </div>
+
+                <p>3. Нам нужно, чтобы эта конструкция была меньше $\varepsilon$. Фиксируем любое $\varepsilon > 0$.</p>
+                <p>4. Так как $b_n \to B$, для числа $\varepsilon' = \varepsilon \cdot \frac{B^2}{2}$ найдется номер $N_2$, что при $n > N_2$ выполняется $|B - b_n| < \varepsilon \cdot \frac{B^2}{2}$.</p>
+                
+                <p>5. Берем $N = \max(N_1, N_2)$. Тогда:</p>
+                <div class="math-block">
+                    $$\left| \frac{1}{b_n} - \frac{1}{B} \right| < \left(\varepsilon \cdot \frac{B^2}{2}\right) \cdot \frac{2}{B^2} = \varepsilon$$
+                </div>
+                <p>Доказано! А предел $\frac{a_n}{b_n}$ следует из теоремы о произведении. ∎</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- СВОЙСТВО 6 -->
+    <div class="card">
+        <div class="theorem-title">Свойство 6: Теорема о двух милиционерах (Теорема о зажатой последовательности)</div>
+        <p>Если последовательность $\{b_n\}$ зажата между $\{a_n\}$ и $\{c_n\}$ (т.е. $a_n \le b_n \le c_n$ для всех $n$), и при этом крайние сходятся к <b>одному и тому же числу</b> $A$ ($\lim a_n = A$ и $\lim c_n = A$), то и зажатая последовательность сходится к $A$: $\lim b_n = A$.</p>
+        
+        <details>
+            <summary>Показать доказательство</summary>
+            <div class="proof-content">
+                <p>Это доказательство очень красивое и наглядное.</p>
+                <p>1. Фиксируем любое $\varepsilon > 0$. Нам нужно доказать, что $b_n$ рано или поздно окажется в $\varepsilon$-коридоре вокруг $A$, то есть:
+                $$A - \varepsilon < b_n < A + \varepsilon$$
+                </p>
+
+                <p>2. Так как $a_n \to A$, найдется $N_1$, начиная с которого $|a_n - A| < \varepsilon$. Раскрывая модуль, получаем:
+                $$A - \varepsilon < a_n < A + \varepsilon$$
+                Нам отсюда понадобится только левая часть: $A - \varepsilon < a_n$.
+                </p>
+
+                <p>3. Так как $c_n \to A$, найдется $N_2$, начиная с которого $|c_n - A| < \varepsilon$. Раскрывая модуль:
+                $$A - \varepsilon < c_n < A + \varepsilon$$
+                Нам отсюда понадобится правая часть: $c_n < A + \varepsilon$.
+                </p>
+
+                <p>4. Выбираем $N = \max(N_1, N_2)$. Для всех $n > N$ будут выполняться оба условия одновременно. Соединяем их с нашим главным условием $a_n \le b_n \le c_n$ в одну длинную цепочку:</p>
+
+                <div class="math-block">
+                    $$A - \varepsilon < a_n \le b_n \le c_n < A + \varepsilon$$
+                </div>
+                
+                <span class="hint-btn" onclick="toggleHint('hint-police')">Почему милиционеры?</span>
+                <div id="hint-login" class="hint-text">
+                    Представь, что $a_n$ и $c_n$ — это два милиционера, которые ведут задержанного $b_n$ в отделение милиции (в точку $A$). Если оба милиционера идут в отделение, то задержанному деваться некуда — он придет туда же!
+                </div>
+
+                <p>5. Если выкинуть из цепочки $a_n$ и $c_n$, мы получим в точности то, что хотели:</p>
+                <div class="math-block">
+                    $$A - \varepsilon < b_n < A + \varepsilon \implies |b_n - A| < \varepsilon$$
+                </div>
+                <p>Значит, $\lim b_n = A$. ∎</p>
+            </div>
+        </details>
+    </div>
+
+</div>
+
+<script>
+    // Скрипт для отображения/скрытия подсказок "почему так"
+    function toggleHint(id) {
+        const hint = document.getElementById(id);
+        if (hint.style.display === "block") {
+            hint.style.display = "none";
+        } else {
+            hint.style.display = "block";
+            // Анимация плавного появления
+            hint.style.animation = "fadeIn 0.3s ease-in-out";
+        }
+    }
+</script>
+
+</body>
+</html>
